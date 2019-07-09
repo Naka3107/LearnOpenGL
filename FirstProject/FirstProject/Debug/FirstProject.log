@@ -1,3 +1,3 @@
 ﻿  Main.cpp
-d:\documentos\graficas computacionales\learnopengl\firstproject\firstproject\src\main.cpp(81): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
+d:\documentos\graficas computacionales\learnopengl\firstproject\firstproject\src\main.cpp(88): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
   FirstProject.vcxproj -> D:\Documentos\Graficas Computacionales\LearnOpenGL\FirstProject\Debug\FirstProject.exe

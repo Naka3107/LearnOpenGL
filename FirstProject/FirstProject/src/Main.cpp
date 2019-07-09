@@ -1,5 +1,8 @@
 #include <glad\glad.h>
 #include <GLFW\glfw3.h>
+#include <glm\glm.hpp>
+#include <glm\gtc\matrix_transform.hpp>
+#include <glm\gtc\type_ptr.hpp>
 
 #include "shader.h"
 #include "stb_image.h"
@@ -28,16 +31,18 @@ int width, height, nrChannels;
 
 float vertices[] = {
 	//positions          // colors           //texcoords
-	0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
-	0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
-   -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-   -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f
+	0.5f,  0.5f, 0.0f,   /*1.0f, 0.0f, 0.0f,*/   1.0f, 1.0f,
+	0.5f, -0.5f, 0.0f,   /*0.0f, 1.0f, 0.0f,*/   1.0f, 0.0f,
+   -0.5f, -0.5f, 0.0f,   /*0.0f, 0.0f, 1.0f,*/   0.0f, 0.0f,
+   -0.5f,  0.5f, 0.0f,   /*1.0f, 1.0f, 0.0f,*/   0.0f, 1.0f
 };
 
 unsigned int indices[] = {
 	0, 1, 3,
 	1, 2, 3
 };
+
+glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
 
 int main() {
 	glfwInit();
@@ -70,6 +75,8 @@ int main() {
 	ourShader.setInt("texture1", 0);
 	ourShader.setInt("texture2", 1);
 	ourShader.disable();
+	
+	
 
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);
@@ -81,6 +88,12 @@ int main() {
 		float timeValue = glfwGetTime();
 		float transparency = (sin(timeValue) / 2.0f) + 0.5f;
 		ourShader.setFloat("transparency", transparency);
+
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+		trans = glm::translate(trans, glm::vec3(1.0, 1.0, 0.0));
+		trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
+		ourShader.setMat4("transform", trans);
 		
 		glBindVertexArray(VAO);
 
@@ -101,9 +114,6 @@ int main() {
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-		/*if (glGetError() != GL_NO_ERROR) {
-			std::cout << "Hay problemas! dos" << std::endl;
-		}*/
 	}
 
 	glfwTerminate();
@@ -123,14 +133,14 @@ void initializeBuffers() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
+	/*glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);*/
 
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -169,7 +179,6 @@ void createTextures() {
 
 	data = stbi_load("images/awesomeface.png", &width, &height, &nrChannels, 0);
 	if (data) {
-		std::cout << "Width: " << width << " Height: " << height << " Channels: " << nrChannels << std::endl;
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
